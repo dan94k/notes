@@ -18,21 +18,15 @@ import { useEffect, useRef, useCallback, useState } from "react";
 
 interface EditorProps {
   pageId: string;
+  saveStatus: "saved" | "saving" | "dirty";
   onSaveStatus: (status: "saved" | "saving" | "dirty") => void;
 }
 
-interface Version {
-  id: string;
-  content: string;
-  saved_at: string;
-}
-
-export default function Editor({ pageId, onSaveStatus }: EditorProps) {
+export default function Editor({ pageId, saveStatus, onSaveStatus }: EditorProps) {
   const isDirty = useRef(false);
   const currentContent = useRef("");
   const autoSaveTimer = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [showVersions, setShowVersions] = useState(false);
-  const [versions, setVersions] = useState<Version[]>([]);
+  const prevPageId = useRef<string | null>(null);
   const [, forceUpdate] = useState(0);
   const [showHeadingMenu, setShowHeadingMenu] = useState(false);
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -101,10 +95,23 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
     },
   });
 
-  // Load page content
+  // Load page content (save previous page if dirty)
   useEffect(() => {
     if (!editor || !pageId) return;
+
     async function loadPage() {
+      // Save previous page if it had unsaved changes
+      if (isDirty.current && prevPageId.current && prevPageId.current !== pageId) {
+        const html = editor!.getHTML();
+        await fetch(`/api/pages/${prevPageId.current}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: html }),
+        });
+        isDirty.current = false;
+      }
+      prevPageId.current = pageId;
+
       const res = await fetch(`/api/pages/${pageId}`);
       if (res.ok) {
         const page = await res.json();
@@ -142,54 +149,22 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
     };
   }, [autoSave]);
 
-  // Manual save (creates version)
-  async function handleManualSave() {
-    if (!editor || !pageId) return;
+  // Expose manual save for external trigger
+  const manualSave = useCallback(async () => {
+    if (!isDirty.current || !editor || !pageId) return;
     onSaveStatus("saving");
-    const newContent = editor.getHTML();
-    if (currentContent.current) {
-      await fetch(`/api/pages/${pageId}/versions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: currentContent.current }),
-      });
-    }
+    const html = editor.getHTML();
     const res = await fetch(`/api/pages/${pageId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: newContent }),
+      body: JSON.stringify({ content: html }),
     });
     if (res.ok) {
-      currentContent.current = newContent;
+      currentContent.current = html;
       isDirty.current = false;
       onSaveStatus("saved");
     }
-  }
-
-  // Load versions
-  async function loadVersions() {
-    const res = await fetch(`/api/pages/${pageId}/versions`);
-    if (res.ok) {
-      setVersions(await res.json());
-      setShowVersions(true);
-    }
-  }
-
-  // Restore version
-  async function restoreVersion(content: string) {
-    if (!editor) return;
-    if (currentContent.current) {
-      await fetch(`/api/pages/${pageId}/versions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: currentContent.current }),
-      });
-    }
-    editor.commands.setContent(content);
-    isDirty.current = true;
-    onSaveStatus("dirty");
-    setShowVersions(false);
-  }
+  }, [editor, pageId, onSaveStatus]);
 
   // Link handler
   function handleSetLink() {
@@ -256,8 +231,8 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
   return (
     <div className="flex h-full flex-1 flex-col">
       {/* Toolbar */}
-      <div className="editor-toolbar flex items-center justify-between px-3 py-1.5">
-        <div className="flex items-center gap-0.5">
+      <div className="editor-toolbar flex items-center px-3 py-1.5">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-0.5">
           {/* Undo / Redo */}
           <ToolbarBtn
             onAction={() => editor?.chain().focus().undo().run()}
@@ -294,7 +269,7 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
             </button>
             {showHeadingMenu && (
-              <div className="absolute left-0 top-full z-50 mt-1 rounded-md border border-neutral-700 bg-neutral-800 py-1 shadow-lg">
+              <div className="absolute left-0 top-full z-50 mt-1 min-w-[140px] rounded-md border border-neutral-700 bg-neutral-800 py-1 shadow-lg">
                 {[1, 2, 3, 4].map((level) => (
                   <button
                     key={level}
@@ -559,21 +534,31 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
           />
         </div>
 
-        {/* Right side */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={loadVersions}
-            className="editor-btn-ghost"
-          >
-            Versões
-          </button>
-          <button
-            onClick={handleManualSave}
-            className="editor-btn-save"
-          >
-            Salvar
-          </button>
-        </div>
+        {/* Sync button */}
+        <button
+          disabled={saveStatus !== "dirty"}
+          onClick={() => manualSave()}
+          className={`sync-btn ${
+            saveStatus === "dirty" ? "sync-btn--dirty" : saveStatus === "saving" ? "sync-btn--saving" : ""
+          }`}
+        >
+          {saveStatus === "saving" ? (
+            <>
+              <svg className="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" strokeOpacity="0.25" /><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" /></svg>
+              Sincronizando...
+            </>
+          ) : saveStatus === "dirty" ? (
+            <>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+              Sincronizar
+            </>
+          ) : (
+            <>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+              Sincronizado
+            </>
+          )}
+        </button>
       </div>
 
       {/* Editor */}
@@ -587,48 +572,6 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
         {editor && <EditorContent editor={editor} />}
       </div>
 
-      {/* Versions panel */}
-      {showVersions && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-red/60">
-          <div className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-lg border border-neutral-800 bg-neutral-900 p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-neutral-200">
-                Histórico de versões
-              </h2>
-              <button
-                onClick={() => setShowVersions(false)}
-                className="text-neutral-500 hover:text-neutral-300"
-              >
-                ×
-              </button>
-            </div>
-            {versions.length === 0 ? (
-              <p className="text-sm text-neutral-500">
-                Nenhuma versão anterior.
-              </p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {versions.map((v) => (
-                  <div
-                    key={v.id}
-                    className="flex items-center justify-between rounded border border-neutral-800 px-3 py-2"
-                  >
-                    <span className="text-xs text-neutral-400">
-                      {new Date(v.saved_at).toLocaleString("pt-BR")}
-                    </span>
-                    <button
-                      onClick={() => restoreVersion(v.content)}
-                      className="text-xs text-neutral-400 hover:text-neutral-100"
-                    >
-                      Restaurar
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

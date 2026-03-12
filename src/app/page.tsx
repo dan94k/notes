@@ -83,24 +83,7 @@ export default function Home() {
       <main className="sidebar-panel flex flex-1 flex-col overflow-hidden">
         {selectedPage ? (
           <>
-            <Editor pageId={selectedPage} onSaveStatus={handleSaveStatus} />
-            <div className="editor-statusbar px-4 py-1.5 text-right">
-              <span
-                className={`text-xs ${
-                  saveStatus === "saved"
-                    ? "text-neutral-600"
-                    : saveStatus === "saving"
-                    ? "text-yellow-600"
-                    : "text-orange-500"
-                }`}
-              >
-                {saveStatus === "saved"
-                  ? "Salvo"
-                  : saveStatus === "saving"
-                  ? "Salvando..."
-                  : "Alterações não salvas"}
-              </span>
-            </div>
+            <Editor pageId={selectedPage} saveStatus={saveStatus} onSaveStatus={handleSaveStatus} />
           </>
         ) : (
           <div className="flex flex-1 items-center justify-center">
