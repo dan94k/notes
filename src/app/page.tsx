@@ -14,6 +14,7 @@ export default function Home() {
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "dirty">(
     "saved"
   );
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     async function checkAuth() {
@@ -44,7 +45,7 @@ export default function Home() {
   if (authenticated === null) {
     return (
       <div className="flex h-screen flex-col items-center">
-        <div className="w-full max-w-[1024px]">
+        <div className="w-full max-w-[1280px]">
           {/* @ts-expect-error -- web component */}
           <bydan-header></bydan-header>
         </div>
@@ -59,7 +60,7 @@ export default function Home() {
   if (!authenticated) {
     return (
       <div className="flex h-screen flex-col items-center">
-        <div className="w-full max-w-[1024px]">
+        <div className="w-full max-w-[1280px]">
           {/* @ts-expect-error -- web component */}
           <bydan-header></bydan-header>
         </div>
@@ -70,11 +71,11 @@ export default function Home() {
 
   return (
     <div className="flex h-screen flex-col items-center text-neutral-100">
-      <div className="w-full max-w-[1024px]">
+      <div className="w-full max-w-[1280px]">
         {/* @ts-expect-error -- web component */}
         <bydan-header></bydan-header>
       </div>
-      <div className="flex w-full max-w-[1024px] flex-1 gap-[15px] overflow-hidden">
+      <div className="flex w-full max-w-[1280px] flex-1 gap-[15px] overflow-hidden">
       <Sidebar
         selectedNotebook={selectedNotebook}
         selectedPage={selectedPage}
@@ -84,13 +85,15 @@ export default function Home() {
         }}
         onSelectPage={(id) => setSelectedPage(id || null)}
         onLogout={handleLogout}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
       />
 
-      <main className="sidebar-panel my-[15px] flex flex-1 flex-col overflow-hidden">
+      <main className="sidebar-panel flex flex-1 flex-col overflow-hidden">
         {selectedPage ? (
           <>
             <Editor pageId={selectedPage} onSaveStatus={handleSaveStatus} />
-            <div className="border-t border-neutral-800 px-4 py-1.5 text-right">
+            <div className="editor-statusbar px-4 py-1.5 text-right">
               <span
                 className={`text-xs ${
                   saveStatus === "saved"

@@ -256,7 +256,7 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
   return (
     <div className="flex h-full flex-1 flex-col">
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-b border-neutral-800 px-3 py-1.5">
+      <div className="editor-toolbar flex items-center justify-between px-3 py-1.5">
         <div className="flex items-center gap-0.5">
           {/* Undo / Redo */}
           <ToolbarBtn
@@ -563,13 +563,13 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={loadVersions}
-            className="rounded px-2 py-1 text-xs text-neutral-500 hover:bg-neutral-800 hover:text-neutral-300"
+            className="editor-btn-ghost"
           >
             Versões
           </button>
           <button
             onClick={handleManualSave}
-            className="rounded bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-900 hover:bg-neutral-200"
+            className="editor-btn-save"
           >
             Salvar
           </button>
@@ -578,7 +578,7 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
 
       {/* Editor */}
       <div
-        className="flex-1 overflow-y-auto"
+        className="editor-scroll flex-1 overflow-y-auto"
         onClick={() => {
           setShowHeadingMenu(false);
           setShowLinkInput(false);

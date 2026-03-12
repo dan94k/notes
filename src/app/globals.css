@@ -15,6 +15,356 @@ body {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
 }
 
+/* ── Sidebar internals ── */
+
+.sidebar-header {
+  border-bottom: 1px solid oklch(0.22 0.02 250);
+}
+
+.sidebar-title {
+  color: oklch(0.7 0.18 220);
+  letter-spacing: -0.02em;
+}
+
+.sidebar-section-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: oklch(0.45 0.02 250);
+}
+
+.sidebar-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 0.5rem;
+  color: oklch(0.5 0.02 250);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.sidebar-action-btn:hover {
+  color: oklch(0.85 0.01 250);
+  background-color: oklch(0.22 0.03 250);
+}
+
+.sidebar-empty {
+  color: oklch(0.4 0.02 250);
+}
+
+/* Notebook row */
+.sidebar-notebook-row {
+  display: flex;
+  align-items: center;
+  border-radius: 0.625rem;
+  color: oklch(0.6 0.02 240);
+  transition: color 0.15s, background-color 0.15s;
+  cursor: default;
+}
+
+.sidebar-notebook-row:hover {
+  background-color: oklch(0.2 0.025 250);
+  color: oklch(0.85 0.01 250);
+}
+
+.sidebar-notebook-row.is-open {
+  color: oklch(0.88 0.01 250);
+  background-color: oklch(0.2 0.03 250);
+}
+
+/* Page row */
+.sidebar-page-row {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+  padding-right: 0.25rem;
+  border-radius: 0.5rem;
+  color: oklch(0.52 0.02 240);
+  transition: color 0.15s, background-color 0.15s;
+  cursor: default;
+}
+
+.sidebar-page-row:hover {
+  background-color: oklch(0.2 0.025 250);
+  color: oklch(0.78 0.01 250);
+}
+
+.sidebar-page-row.is-active {
+  background-color: oklch(0.22 0.04 250);
+  color: oklch(0.88 0.01 250);
+}
+
+.sidebar-page-row.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 2px;
+  border-radius: 1px;
+  background-color: oklch(0.7 0.18 220);
+}
+
+/* Pages container — left border for tree line */
+.sidebar-pages-list {
+  position: relative;
+  margin-left: 1.25rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.25rem;
+  border-left: 1px solid oklch(0.24 0.02 250);
+}
+
+/* Row actions (edit / delete) — hidden until parent hover via Tailwind group-hover */
+.sidebar-row-actions {
+  display: flex;
+  gap: 0.125rem;
+  padding-right: 0.25rem;
+}
+
+.sidebar-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 0.375rem;
+  color: oklch(0.45 0.02 250);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.sidebar-icon-btn:hover {
+  color: oklch(0.8 0.01 250);
+  background-color: oklch(0.25 0.03 250);
+}
+
+.sidebar-icon-btn--danger:hover {
+  color: oklch(0.7 0.18 25);
+  background-color: oklch(0.22 0.05 25);
+}
+
+/* New page button */
+.sidebar-new-page {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+  margin-left: 0.25rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.7rem;
+  color: oklch(0.45 0.02 250);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.sidebar-new-page:hover {
+  color: oklch(0.7 0.18 220);
+  background-color: oklch(0.2 0.03 250);
+}
+
+/* Inline edit input */
+.sidebar-inline-input {
+  background: transparent;
+  font-size: 0.8125rem;
+  color: oklch(0.88 0.01 250);
+  outline: none;
+  border-bottom: 1px solid oklch(0.7 0.18 220);
+  padding-bottom: 1px;
+}
+
+/* Collapsed sidebar button */
+.sidebar-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 0.75rem;
+  background-color: oklch(0.17 0.025 250);
+  border: 1px solid oklch(0.26 0.03 250);
+  color: oklch(0.5 0.02 250);
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-collapse-btn:hover {
+  color: oklch(0.7 0.18 220);
+  border-color: oklch(0.32 0.04 250);
+  background-color: oklch(0.2 0.03 250);
+}
+
+/* Custom scrollbar for sidebar */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: oklch(0.28 0.02 250);
+  border-radius: 2px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.35 0.02 250);
+}
+
+/* ── Editor chrome ── */
+
+.editor-toolbar {
+  border-bottom: 1px solid oklch(0.22 0.02 250);
+}
+
+.editor-statusbar {
+  border-top: 1px solid oklch(0.22 0.02 250);
+}
+
+.editor-btn-ghost {
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: oklch(0.5 0.02 250);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.editor-btn-ghost:hover {
+  color: oklch(0.85 0.01 250);
+  background-color: oklch(0.22 0.03 250);
+}
+
+.editor-btn-save {
+  padding: 0.25rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: oklch(0.7 0.18 220);
+  border: 1px solid oklch(0.35 0.08 220);
+  background-color: oklch(0.2 0.04 250);
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+}
+
+.editor-btn-save:hover {
+  color: oklch(0.85 0.18 220);
+  border-color: oklch(0.45 0.12 220);
+  background-color: oklch(0.22 0.05 250);
+}
+
+/* Editor scrollbar */
+.editor-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.editor-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editor-scroll::-webkit-scrollbar-thumb {
+  background: oklch(0.28 0.02 250);
+  border-radius: 3px;
+}
+
+.editor-scroll::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.35 0.02 250);
+}
+
+/* ── Confirm dialog ── */
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: confirm-fade-in 0.15s ease;
+}
+
+.confirm-dialog {
+  width: 100%;
+  max-width: 340px;
+  background-color: oklch(0.15 0.02 250);
+  border: 1px solid oklch(0.26 0.03 250);
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  animation: confirm-slide-up 0.15s ease;
+}
+
+.confirm-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: oklch(0.88 0.01 250);
+  margin-bottom: 0.5rem;
+}
+
+.confirm-message {
+  font-size: 0.8rem;
+  color: oklch(0.55 0.02 250);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.confirm-btn-cancel {
+  padding: 0.375rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: oklch(0.6 0.02 250);
+  background-color: oklch(0.2 0.02 250);
+  border: 1px solid oklch(0.26 0.03 250);
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+
+.confirm-btn-cancel:hover {
+  color: oklch(0.85 0.01 250);
+  background-color: oklch(0.22 0.03 250);
+  border-color: oklch(0.32 0.04 250);
+}
+
+.confirm-btn-danger {
+  padding: 0.375rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: oklch(0.85 0.15 25);
+  background-color: oklch(0.22 0.06 25);
+  border: 1px solid oklch(0.35 0.1 25);
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+
+.confirm-btn-danger:hover {
+  color: oklch(0.95 0.12 25);
+  background-color: oklch(0.28 0.09 25);
+  border-color: oklch(0.42 0.12 25);
+}
+
+@keyframes confirm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes confirm-slide-up {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* TipTap Editor Styles — inside @layer base so they override Tailwind's reset */
 @layer base {
   .tiptap h1 {
