@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { v4 as uuid } from "crypto";
 
 export async function POST(request: Request) {
   try {
