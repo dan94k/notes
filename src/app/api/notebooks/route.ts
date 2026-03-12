@@ -4,12 +4,22 @@ import { supabase } from "@/lib/supabase";
 export async function GET() {
   const { data, error } = await supabase
     .from("notebooks")
-    .select("*")
+    .select("*, pages:pages(count)")
     .is("deleted_at", null)
+    .is("pages.deleted_at", null)
     .order("created_at", { ascending: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+
+  // Flatten page count from Supabase aggregate
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = (data ?? []).map((nb: any) => ({
+    ...nb,
+    page_count: nb.pages?.[0]?.count ?? 0,
+    pages: undefined,
+  }));
+
+  return NextResponse.json(result);
 }
 
 export async function POST(request: Request) {

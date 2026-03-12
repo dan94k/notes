@@ -7,6 +7,7 @@ interface Notebook {
   id: string;
   name: string;
   created_at: string;
+  page_count: number;
 }
 
 interface Page {
@@ -17,6 +18,7 @@ interface Page {
 }
 
 interface SidebarProps {
+  authenticated: boolean | null;
   selectedNotebook: string | null;
   selectedPage: string | null;
   onSelectNotebook: (id: string) => void;
@@ -184,6 +186,7 @@ function LogoutIcon() {
 /* ── Sidebar component ── */
 
 export default function Sidebar({
+  authenticated,
   selectedNotebook,
   selectedPage,
   onSelectNotebook,
@@ -207,8 +210,8 @@ export default function Sidebar({
   } | null>(null);
 
   useEffect(() => {
-    fetchNotebooks();
-  }, []);
+    if (authenticated) fetchNotebooks();
+  }, [authenticated]);
 
   // Fetch pages when a notebook is selected (expanded)
   const fetchPagesForNotebook = useCallback(async (notebookId: string) => {
@@ -305,6 +308,11 @@ export default function Sidebar({
         ...prev,
         [notebookId]: [page, ...(prev[notebookId] || [])],
       }));
+      setNotebooks((prev) =>
+        prev.map((nb) =>
+          nb.id === notebookId ? { ...nb, page_count: nb.page_count + 1 } : nb
+        )
+      );
       setEditingPage(page.id);
       setEditValue(page.title);
       onSelectPage(page.id);
@@ -339,6 +347,13 @@ export default function Sidebar({
         ...prev,
         [notebookId]: (prev[notebookId] || []).filter((p) => p.id !== id),
       }));
+      setNotebooks((prev) =>
+        prev.map((nb) =>
+          nb.id === notebookId
+            ? { ...nb, page_count: Math.max(0, nb.page_count - 1) }
+            : nb
+        )
+      );
       if (selectedPage === id) onSelectPage("");
     }
   }
@@ -351,7 +366,7 @@ export default function Sidebar({
       deletePage(confirmDelete.id, confirmDelete.notebookId!);
     }
     setConfirmDelete(null);
-  }
+            }
 
   function handleNotebookClick(id: string) {
     if (selectedNotebook === id) {
@@ -463,7 +478,9 @@ export default function Sidebar({
                         {nb.name}
                       </span>
                     </button>
-                    <div className="sidebar-row-actions opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="sidebar-row-trailing">
+                      <span className="sidebar-page-count group-hover:opacity-0">{nb.page_count}</span>
+                      <div className="sidebar-row-actions opacity-0 group-hover:opacity-100">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -485,6 +502,7 @@ export default function Sidebar({
                       >
                         <TrashIcon />
                       </button>
+                      </div>
                     </div>
                   </>
                 )}

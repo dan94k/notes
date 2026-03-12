@@ -56,27 +56,18 @@ export default function Home() {
     );
   }
 
-  // Not authenticated
-  if (!authenticated) {
-    return (
-      <div className="flex h-screen flex-col items-center">
-        <div className="w-full max-w-[1280px]">
-          {/* @ts-expect-error -- web component */}
-          <bydan-header></bydan-header>
-        </div>
-        <PasswordModal onSuccess={() => setAuthenticated(true)} />
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-screen flex-col items-center text-neutral-100">
       <div className="w-full max-w-[1280px]">
         {/* @ts-expect-error -- web component */}
         <bydan-header></bydan-header>
       </div>
-      <div className="flex w-full max-w-[1280px] flex-1 gap-[15px] overflow-hidden">
+      <div className="relative flex w-full max-w-[1280px] flex-1 gap-[15px] overflow-hidden">
+      {!authenticated && authenticated !== null && (
+        <PasswordModal onSuccess={() => setAuthenticated(true)} />
+      )}
       <Sidebar
+        authenticated={authenticated}
         selectedNotebook={selectedNotebook}
         selectedPage={selectedPage}
         onSelectNotebook={(id) => {

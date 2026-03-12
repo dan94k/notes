@@ -74,6 +74,37 @@ body {
   background-color: oklch(0.2 0.03 250);
 }
 
+.sidebar-row-trailing {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 2.75rem;
+  flex-shrink: 0;
+  margin-right: 0.25rem;
+}
+
+.sidebar-page-count {
+  font-size: 0.75rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  color: oklch(0.42 0.02 250);
+  font-weight: 500;
+  flex-shrink: 0;
+  padding: 0 0.25rem;
+  transition: opacity 0.15s;
+}
+
+.sidebar-row-trailing .sidebar-row-actions {
+  position: absolute;
+  right: 0;
+  transition: opacity 0.15s;
+}
+
 /* Page row */
 .sidebar-page-row {
   display: flex;
@@ -353,6 +384,74 @@ body {
   color: oklch(0.95 0.12 25);
   background-color: oklch(0.28 0.09 25);
   border-color: oklch(0.42 0.12 25);
+}
+
+/* ── Password modal ── */
+
+.password-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 1rem;
+  animation: confirm-fade-in 0.15s ease;
+}
+
+.password-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+  color: oklch(0.88 0.01 250);
+  background-color: oklch(0.08 0.01 250);
+  border: 1px solid oklch(0.24 0.025 250);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.password-input::placeholder {
+  color: oklch(0.35 0.02 250);
+}
+
+.password-input:focus {
+  border-color: oklch(0.5 0.12 220);
+  box-shadow: 0 0 0 3px oklch(0.3 0.08 220 / 0.25);
+}
+
+.password-error {
+  font-size: 0.75rem;
+  color: oklch(0.7 0.18 25);
+  text-align: center;
+}
+
+.password-btn-submit {
+  width: 100%;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: oklch(0.95 0.01 220);
+  background-color: oklch(0.3 0.08 220);
+  border: 1px solid oklch(0.4 0.1 220);
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.password-btn-submit:hover {
+  background-color: oklch(0.35 0.1 220);
+  border-color: oklch(0.5 0.12 220);
+  box-shadow: 0 0 12px oklch(0.4 0.12 220 / 0.3);
+}
+
+.password-btn-submit:disabled {
+  opacity: 0.35;
+  cursor: default;
+  box-shadow: none;
 }
 
 @keyframes confirm-fade-in {

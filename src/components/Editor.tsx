@@ -118,7 +118,7 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
     loadPage();
   }, [pageId, editor, onSaveStatus]);
 
-  // Auto-save every 5 minutes
+  // Auto-save every 30 seconds (only if dirty)
   const autoSave = useCallback(async () => {
     if (!isDirty.current || !editor || !pageId) return;
     onSaveStatus("saving");
@@ -136,7 +136,7 @@ export default function Editor({ pageId, onSaveStatus }: EditorProps) {
   }, [editor, pageId, onSaveStatus]);
 
   useEffect(() => {
-    autoSaveTimer.current = setInterval(autoSave, 5 * 60 * 1000);
+    autoSaveTimer.current = setInterval(autoSave, 30 * 1000);
     return () => {
       if (autoSaveTimer.current) clearInterval(autoSaveTimer.current);
     };
