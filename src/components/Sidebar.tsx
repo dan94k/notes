@@ -148,9 +148,9 @@ export default function Sidebar({
   }
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-neutral-800 bg-neutral-950">
+    <aside className="sidebar-panel flex w-64 flex-col my-[15px] shrink-0 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
+      <div className="flex items-center justify-between px-4 py-3">
         <span className="text-sm font-semibold text-neutral-300">Notes</span>
         <button
           onClick={onLogout}

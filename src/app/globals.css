@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+/* Page background */
+body {
+  background-color: lab(1.95972% -0.491969 -3.43974);
+}
+
+/* Sidebar panel — matches bydan-header style */
+.sidebar-panel {
+  background-color: oklch(0.17 0.025 250);
+  border: 1px solid oklch(0.26 0.03 250);
+  border-radius: 1rem;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
 /* TipTap Editor Styles — inside @layer base so they override Tailwind's reset */
 @layer base {
   .tiptap h1 {
