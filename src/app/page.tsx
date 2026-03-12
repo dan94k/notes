@@ -43,19 +43,32 @@ export default function Home() {
   // Loading state
   if (authenticated === null) {
     return (
-      <div className="flex h-screen items-center justify-center bg-neutral-950">
-        <div className="text-sm text-neutral-500">Carregando...</div>
+      <div className="flex h-screen flex-col bg-neutral-950">
+        {/* @ts-expect-error -- web component */}
+        <bydan-header></bydan-header>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="text-sm text-neutral-500">Carregando...</div>
+        </div>
       </div>
     );
   }
 
   // Not authenticated
   if (!authenticated) {
-    return <PasswordModal onSuccess={() => setAuthenticated(true)} />;
+    return (
+      <div className="flex h-screen flex-col bg-neutral-950">
+        {/* @ts-expect-error -- web component */}
+        <bydan-header></bydan-header>
+        <PasswordModal onSuccess={() => setAuthenticated(true)} />
+      </div>
+    );
   }
 
   return (
-    <div className="flex h-screen bg-neutral-950 text-neutral-100">
+    <div className="flex h-screen flex-col bg-neutral-950 text-neutral-100">
+      {/* @ts-expect-error -- web component */}
+      <bydan-header></bydan-header>
+      <div className="flex flex-1 overflow-hidden">
       <Sidebar
         selectedNotebook={selectedNotebook}
         selectedPage={selectedPage}
@@ -99,6 +112,7 @@ export default function Home() {
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 }

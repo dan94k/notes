@@ -16,6 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <script src="https://bydan.dev/site-header.js" defer></script>
+      </head>
       <body className={`${inter.className} antialiased`}>{children}</body>
     </html>
   );
