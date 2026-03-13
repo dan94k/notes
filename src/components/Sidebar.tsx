@@ -26,6 +26,9 @@ interface SidebarProps {
   onLogout: () => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  isMobile?: boolean;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
 function SidebarToggleIcon({ collapsed }: { collapsed: boolean }) {
@@ -194,6 +197,9 @@ export default function Sidebar({
   onLogout,
   collapsed,
   onToggleCollapse,
+  isMobile = false,
+  mobileOpen = false,
+  onMobileClose,
 }: SidebarProps) {
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [pagesMap, setPagesMap] = useState<Record<string, Page[]>>({});
@@ -383,7 +389,13 @@ export default function Sidebar({
     ? loadingPages[selectedNotebook]
     : false;
 
-  if (collapsed) {
+  // Mobile: hidden when closed
+  if (isMobile && !mobileOpen) {
+    return null;
+  }
+
+  // Desktop: collapsed button
+  if (!isMobile && collapsed) {
     return (
       <button
         onClick={onToggleCollapse}
@@ -395,21 +407,37 @@ export default function Sidebar({
     );
   }
 
+  const sidebarClass = isMobile
+    ? "fixed inset-0 z-50 flex flex-col overflow-hidden sidebar-panel rounded-none border-0"
+    : "sidebar-panel flex w-64 flex-col shrink-0 overflow-hidden sidebar-animate";
+
   return (
-    <aside className="sidebar-panel flex w-64 flex-col shrink-0 overflow-hidden sidebar-animate">
+    <aside className={sidebarClass}>
       {/* Header */}
       <div className="sidebar-header flex items-center justify-between px-4 py-3">
         <span className="sidebar-title text-sm font-semibold tracking-tight">
           Notes
         </span>
         <div className="flex items-center gap-0.5">
-          <button
-            onClick={onToggleCollapse}
-            className="sidebar-action-btn"
-            title="Colapsar menu"
-          >
-            <SidebarToggleIcon collapsed={false} />
-          </button>
+          {isMobile ? (
+            <button
+              onClick={onMobileClose}
+              className="sidebar-action-btn"
+              title="Fechar menu"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M2 2l10 10M12 2L2 12" />
+              </svg>
+            </button>
+          ) : (
+            <button
+              onClick={onToggleCollapse}
+              className="sidebar-action-btn"
+              title="Colapsar menu"
+            >
+              <SidebarToggleIcon collapsed={false} />
+            </button>
+          )}
           <button
             onClick={onLogout}
             className="sidebar-action-btn"
@@ -544,7 +572,9 @@ export default function Sidebar({
                           ) : (
                             <>
                               <button
-                                onClick={() => onSelectPage(page.id)}
+                                onClick={() => {
+                                  onSelectPage(page.id);
+                                }}
                                 className="flex flex-1 items-center gap-2 py-1 pl-2 text-left"
                               >
                                 <PageIcon />

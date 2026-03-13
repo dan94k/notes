@@ -20,14 +20,17 @@ interface EditorProps {
   pageId: string;
   saveStatus: "saved" | "saving" | "dirty";
   onSaveStatus: (status: "saved" | "saving" | "dirty") => void;
+  isMobile?: boolean;
+  onOpenSidebar?: () => void;
 }
 
-export default function Editor({ pageId, saveStatus, onSaveStatus }: EditorProps) {
+export default function Editor({ pageId, saveStatus, onSaveStatus, isMobile = false, onOpenSidebar }: EditorProps) {
   const isDirty = useRef(false);
   const currentContent = useRef("");
   const autoSaveTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const prevPageId = useRef<string | null>(null);
   const [, forceUpdate] = useState(0);
+  const [toolbarCollapsed, setToolbarCollapsed] = useState(false);
   const [showHeadingMenu, setShowHeadingMenu] = useState(false);
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
@@ -94,6 +97,11 @@ export default function Editor({ pageId, saveStatus, onSaveStatus }: EditorProps
       forceUpdate((n) => n + 1);
     },
   });
+
+  // Collapse toolbar by default on mobile
+  useEffect(() => {
+    if (isMobile) setToolbarCollapsed(true);
+  }, [isMobile]);
 
   // Load page content (save previous page if dirty)
   useEffect(() => {
@@ -230,7 +238,64 @@ export default function Editor({ pageId, saveStatus, onSaveStatus }: EditorProps
 
   return (
     <div className="flex h-full flex-1 flex-col">
-      {/* Toolbar */}
+      {/* Toolbar header — always visible */}
+      <div className="editor-toolbar flex items-center gap-1 px-3 py-1.5">
+        {/* Sidebar open button (mobile only) */}
+        {isMobile && (
+          <button
+            onClick={onOpenSidebar}
+            className="flex items-center justify-center rounded p-1.5 text-neutral-500 transition hover:bg-neutral-800 hover:text-neutral-300"
+            title="Cadernos e páginas"
+          >
+            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2.5" y="1.5" width="9" height="11" rx="1.5" />
+              <path d="M5 1.5v11" />
+              <path d="M7.5 5.5L9.5 7 7.5 8.5" />
+            </svg>
+          </button>
+        )}
+        {/* Toolbar collapse toggle */}
+        <button
+          onClick={() => setToolbarCollapsed((c) => !c)}
+          className="flex items-center justify-center rounded p-1.5 text-neutral-500 transition hover:bg-neutral-800 hover:text-neutral-300"
+          title={toolbarCollapsed ? "Mostrar ferramentas" : "Ocultar ferramentas"}
+        >
+          {toolbarCollapsed ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="6 9 12 15 18 9" /></svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="18 15 12 9 6 15" /></svg>
+          )}
+        </button>
+        <div className="flex-1" />
+        {/* Sync button */}
+        <button
+          disabled={saveStatus !== "dirty"}
+          onClick={() => manualSave()}
+          className={`sync-btn ${
+            saveStatus === "dirty" ? "sync-btn--dirty" : saveStatus === "saving" ? "sync-btn--saving" : ""
+          }`}
+        >
+          {saveStatus === "saving" ? (
+            <>
+              <svg className="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" strokeOpacity="0.25" /><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" /></svg>
+              Sincronizando...
+            </>
+          ) : saveStatus === "dirty" ? (
+            <>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+              Sincronizar
+            </>
+          ) : (
+            <>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+              Sincronizado
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Collapsible toolbar body */}
+      {!toolbarCollapsed && (
       <div className="editor-toolbar flex items-center px-3 py-1.5">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-0.5">
           {/* Undo / Redo */}
@@ -533,33 +598,8 @@ export default function Editor({ pageId, saveStatus, onSaveStatus }: EditorProps
             className="hidden"
           />
         </div>
-
-        {/* Sync button */}
-        <button
-          disabled={saveStatus !== "dirty"}
-          onClick={() => manualSave()}
-          className={`sync-btn ${
-            saveStatus === "dirty" ? "sync-btn--dirty" : saveStatus === "saving" ? "sync-btn--saving" : ""
-          }`}
-        >
-          {saveStatus === "saving" ? (
-            <>
-              <svg className="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" strokeOpacity="0.25" /><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" /></svg>
-              Sincronizando...
-            </>
-          ) : saveStatus === "dirty" ? (
-            <>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
-              Sincronizar
-            </>
-          ) : (
-            <>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-              Sincronizado
-            </>
-          )}
-        </button>
       </div>
+      )}
 
       {/* Editor */}
       <div
