@@ -30,11 +30,10 @@ export const DragHandle = Extension.create({
           handle.innerHTML = GRIP_SVG;
 
           const editorEl = editorView.dom as HTMLElement;
-          const container = editorEl.parentElement;
-          if (container) {
-            container.style.position = "relative";
-            container.appendChild(handle);
-          }
+          const scrollContainer = editorEl.closest(".editor-scroll") as HTMLElement | null;
+
+          // Append to body so position:fixed works correctly regardless of DOM nesting
+          document.body.appendChild(handle);
 
           let currentNodePos: number | null = null;
           let currentNodeElement: HTMLElement | null = null;
@@ -79,15 +78,11 @@ export const DragHandle = Extension.create({
           }
 
           function positionHandle(blockEl: HTMLElement) {
-            if (!container) return;
-            const containerRect = container.getBoundingClientRect();
-            const editorRect = editorEl.getBoundingClientRect();
             const blockRect = blockEl.getBoundingClientRect();
-            const top =
-              blockRect.top - containerRect.top + container.scrollTop;
-            const left = editorRect.left - containerRect.left + 8;
-            handle.style.top = `${top + 2}px`;
-            handle.style.left = `${left}px`;
+            const editorRect = editorEl.getBoundingClientRect();
+            // position: fixed uses viewport coordinates directly
+            handle.style.top = `${blockRect.top + 2}px`;
+            handle.style.left = `${editorRect.left + 8}px`;
           }
 
           function onMouseMove(event: MouseEvent) {
@@ -244,12 +239,15 @@ export const DragHandle = Extension.create({
             hide(0);
           }
 
+          function onScroll() {
+            if (visible && currentNodeElement) {
+              positionHandle(currentNodeElement);
+            }
+          }
+
           editorEl.addEventListener("mousemove", onMouseMove);
           editorEl.addEventListener("mouseleave", onMouseLeave);
-          if (container) {
-            container.addEventListener("mousemove", onMouseMove);
-            container.addEventListener("mouseleave", onMouseLeave);
-          }
+          scrollContainer?.addEventListener("scroll", onScroll);
           handle.addEventListener("mouseenter", onHandleMouseEnter);
           handle.addEventListener("mouseleave", onHandleMouseLeave);
           handle.addEventListener("mousedown", onHandleMouseDown);
@@ -274,10 +272,7 @@ export const DragHandle = Extension.create({
             destroy() {
               editorEl.removeEventListener("mousemove", onMouseMove);
               editorEl.removeEventListener("mouseleave", onMouseLeave);
-              if (container) {
-                container.removeEventListener("mousemove", onMouseMove);
-                container.removeEventListener("mouseleave", onMouseLeave);
-              }
+              scrollContainer?.removeEventListener("scroll", onScroll);
               handle.removeEventListener("mouseenter", onHandleMouseEnter);
               handle.removeEventListener("mouseleave", onHandleMouseLeave);
               handle.removeEventListener("mousedown", onHandleMouseDown);

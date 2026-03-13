@@ -667,7 +667,7 @@ body {
 
   /* Drag Handle */
   .drag-handle {
-    position: absolute;
+    position: fixed;
     width: 20px;
     height: 24px;
     display: flex;
